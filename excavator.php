@@ -27,12 +27,17 @@ echo 'S3_REGION=' . $s3Region . "\n";
 
 $s3 = new S3Client([
     'version' => 'latest',
-    'region'  => $s3Region
+    'region'  => $s3Region,
+    'credentials' => [
+        'key' => $s3AccessKey,
+        'secret' => $s3SecretKey,
+    ]
 ]);
 
 $result = $s3->getObject([
     'Bucket' => $s3Bucket,
-    'Key' => $argv[1]
+    'Key' => $argv[1],
+    'SaveAs' => 'test.zip'
 ]);
 
 var_dump($result);

@@ -34,10 +34,22 @@ $s3 = new S3Client([
     ]
 ]);
 
+echo "Downloading artifact... ";
 $result = $s3->getObject([
     'Bucket' => $s3Bucket,
     'Key' => $argv[1],
     'SaveAs' => 'test.zip'
 ]);
 
-var_dump($result);
+echo "done.";
+
+echo "Unzipping artifact...";
+
+$zip = new ZipArchive();
+$res = $zip->open('test.zip');
+if ($res === TRUE) {
+    $zip->extractTo('test-zip');
+    $zip->close();
+}
+
+echo "done.\n";

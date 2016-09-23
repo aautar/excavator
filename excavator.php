@@ -35,18 +35,20 @@ $s3 = new S3Client([
 ]);
 
 echo "Downloading artifact... ";
+
+$saveToFilename = tempnam(sys_get_temp_dir(), 'excavator-artifact-');
 $result = $s3->getObject([
     'Bucket' => $s3Bucket,
     'Key' => $argv[1],
-    'SaveAs' => 'test.zip'
+    'SaveAs' => $saveToFilename
 ]);
 
-echo "done.";
+echo "done.\n";
 
 echo "Unzipping artifact...";
 
 $zip = new ZipArchive();
-$res = $zip->open('test.zip');
+$res = $zip->open($saveToFilename);
 if ($res === TRUE) {
     $zip->extractTo('test-zip');
     $zip->close();

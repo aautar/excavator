@@ -11,8 +11,9 @@ $s3AccessKey = getenv('S3_ACCESS_KEY');
 $s3SecretKey = getenv('S3_SECRET_KEY');
 $s3Region = getenv('S3_REGION');
 
-if(!isset($argv[1])) {
-    echo "Missing argument\n";   
+if(!isset($argv[1]) || !isset($argv[2])) {
+    echo "Missing argument(s)\n\n";
+    echo "excavator [ARTIFACT-ZIP] [DESTINATION-FOLDER]\n\n";
     exit;
 }
 
@@ -46,12 +47,13 @@ $result = $s3->getObject([
 echo "done.\n";
 
 echo "Unzipping artifact...";
-
 $zip = new ZipArchive();
 $res = $zip->open($saveToFilename);
 if ($res === TRUE) {
-    $zip->extractTo('test-zip');
+    $zip->extractTo($argv[2]);
     $zip->close();
+} else {
+    echo "Failed to open " . $saveToFilename . ".";
 }
 
 echo "done.\n";

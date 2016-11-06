@@ -38,16 +38,19 @@ $stdout->writeLine('S3_BUCKET=' . $s3Bucket);
 $stdout->writeLine('S3_ACCESS_KEY=' . $s3AccessKey);
 $stdout->writeLine('S3_REGION=' . $s3Region);
 
-$dataMigrator = null;
+$dataMigrators = [];
 if(empty($databaseConnectionStrings)) {
     $stdout->writeLine("No database connection specified, will not attempt to run migrations");
 } else {
-    try {
-        $dataMigrator = new DataMigrator($databaseConnectionStrings);
-        $dataMigrator->checkDatabaseConnections();
-    } catch (\Throwable $e) {
-        $stdout->writeLine($e->getMessage());
-        exit;
+    foreach($databaseConnectionStrings as $cs) {
+        try {
+            $dm = new DataMigrator($cs);
+            $dm->checkDatabaseConnections();
+            $dataMigrators[] = $dm;
+        } catch (\Throwable $e) {
+            $stdout->writeLine($e->getMessage());
+            exit;
+        }
     }
 }
 

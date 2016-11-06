@@ -13,19 +13,17 @@ class DataMigrator
     protected $dbConnectionParams = [];
 
     /**
-     * @param array $connectionStrings
+     * @param string $connectionString
      */
-    public function __construct(array $connectionStrings)
+    public function __construct(string $connectionString)
     {
-        foreach($connectionStrings as $connString) {
-            $urlParts = parse_url($connString);
+        $urlParts = parse_url($connectionString);
 
-            if($urlParts === false) {
-                throw new Exception("Invalid connections string: " . $connString);
-            }
-
-            $this->dbConnectionParams[$connString] = $urlParts;
+        if($urlParts === false) {
+            throw new Exception("Invalid connections string: " . $connectionString);
         }
+
+        $this->dbConnectionParams[$connectionString] = $urlParts;
     }
 
     /**

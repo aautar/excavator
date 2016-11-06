@@ -4,6 +4,7 @@ require 'vendor/autoload.php';
 
 use Aws\S3\S3Client;
 use Excavator\Output;
+use Excavator\S3ArtifactDownloader;
 
 $stdout = new Output();
 
@@ -38,16 +39,10 @@ $s3 = new S3Client([
     ]
 ]);
 
+$s3ArtifactDownloader = new S3ArtifactDownloader($s3);
 
 $stdout->writeMessageStart("Downloading artifact... ");
-
-$saveToFilename = tempnam(sys_get_temp_dir(), 'excavator-artifact-');
-$result = $s3->getObject([
-    'Bucket' => $s3Bucket,
-    'Key' => $argv[1],
-    'SaveAs' => $saveToFilename
-]);
-
+$saveToFilename = $s3ArtifactDownloader->downloadToTempFile($s3Bucket, $argv[1]);
 $stdout->writeMessageEnd("done.");
 
 $stdout->writeMessageStart("Unzipping artifact...");

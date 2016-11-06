@@ -4,6 +4,6 @@ machine:
 
 test:
   override:
-    - vendor/bin/phpunit --coverage-clover=coverage.xml --bootstrap vendor/autoload.php tests
+    - vendor/bin/phpunit
   post:
     - bash <(curl -s https://codecov.io/bash)

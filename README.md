@@ -2,6 +2,8 @@
 
 Pull and deploy artifacts from S3
 
+[![CircleCI](https://circleci.com/gh/aautar/excavator.svg?style=svg)](https://circleci.com/gh/aautar/excavator)
+
 ###Usage
 
 Set the following environment variables:

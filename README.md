@@ -2,7 +2,8 @@
 
 Pull and deploy artifacts from S3
 
-[![CircleCI](https://circleci.com/gh/aautar/excavator.svg?style=svg)](https://circleci.com/gh/aautar/excavator)
+[![CircleCI](https://circleci.com/gh/aautar/excavator.svg?style=shield)](https://circleci.com/gh/aautar/excavator)
+[![codecov](https://codecov.io/gh/aautar/excavator/branch/master/graph/badge.svg)](https://codecov.io/gh/aautar/excavator)
 
 ###Usage
 

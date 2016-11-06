@@ -1,5 +1,8 @@
 {
     "require": {
         "aws/aws-sdk-php": "^3.19"
+    },
+    "autoload": {
+        "psr-4": {"Excavator\\": "src/"}
     }
 }

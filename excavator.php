@@ -5,15 +5,17 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 use Excavator\Output;
 use Excavator\S3ArtifactDownloader;
+use Excavator\DataMigrator;
 
 $stdout = new Output();
 
-$stdout->writeLine("Excavator 1.0.0");
+$stdout->writeLine("Excavator 1.1.0");
 
 $s3Bucket = getenv('S3_BUCKET');
 $s3AccessKey = getenv('S3_ACCESS_KEY');
 $s3SecretKey = getenv('S3_SECRET_KEY');
 $s3Region = getenv('S3_REGION');
+$dbConnections = getenv('DB_CONNECTIONS');
 
 if(!isset($argv[1]) || !isset($argv[2])) {
     $stdout->writeLine("Missing argument(s)\n");
@@ -26,9 +28,28 @@ if(empty($s3Bucket) || empty($s3AccessKey) || empty($s3SecretKey) || empty($s3Re
     exit;
 }
 
+$databaseConnectionStrings = json_decode(empty($dbConnections) ? '[]' : $dbConnections);
+if($databaseConnectionStrings === null || !is_array($databaseConnectionStrings)) {
+    $stdout->writeLine("Failed to parse database connections: " . $dbConnections);
+    exit;
+}
+
 $stdout->writeLine('S3_BUCKET=' . $s3Bucket);
 $stdout->writeLine('S3_ACCESS_KEY=' . $s3AccessKey);
 $stdout->writeLine('S3_REGION=' . $s3Region);
+
+$dataMigrator = null;
+if(empty($databaseConnectionStrings)) {
+    $stdout->writeLine("No database connection specified, will not attempt to run migrations");
+} else {
+    try {
+        $dataMigrator = new DataMigrator($databaseConnectionStrings);
+        $dataMigrator->checkDatabaseConnections();
+    } catch (\Throwable $e) {
+        $stdout->writeLine($e->getMessage());
+        exit;
+    }
+}
 
 $s3 = new S3Client([
     'version' => 'latest',

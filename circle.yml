@@ -5,4 +5,5 @@ machine:
 test:
   override:
     - vendor/bin/phpunit --bootstrap vendor/autoload.php tests
-
+  post:
+    - bash <(curl -s https://codecov.io/bash)

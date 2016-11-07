@@ -63,9 +63,8 @@ $s3 = new S3Client([
     ]
 ]);
 
-$s3ArtifactDownloader = new S3ArtifactDownloader($s3);
-
 $stdout->writeMessageStart("Downloading artifact... ");
+$s3ArtifactDownloader = new S3ArtifactDownloader($s3);
 $saveToFilename = $s3ArtifactDownloader->downloadToTempFile($s3Bucket, $argv[1]);
 $stdout->writeMessageEnd("done.");
 

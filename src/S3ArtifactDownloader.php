@@ -24,7 +24,7 @@ class S3ArtifactDownloader
      * @param string $artifactZip
      * @return string
      */
-    public function downloadToTempFile(string $bucket, string $artifactZip) : string
+    public function download(string $bucket, string $artifactZip, string $versionFile) : Artifact
     {
         $saveToFilename = tempnam(sys_get_temp_dir(), 'excavator-artifact-');
         $result = $this->s3Client->getObject([
@@ -33,6 +33,6 @@ class S3ArtifactDownloader
             'SaveAs' => $saveToFilename
         ]);
 
-        return $saveToFilename;
+        return new Artifact($saveToFilename, $versionFile);
     }
 }

@@ -32,7 +32,7 @@ class S3ArtifactDownloaderTest extends \PHPUnit_Framework_TestCase
                         ]]
                 );
        
-        $downloader->download("bucket", "artifact.zip");
+        $downloader->download("bucket", "artifact.zip", "version.txt");
 
     }
 }

@@ -47,12 +47,12 @@ class Artifact
     {
         $versionTag = $this->getVersionTag();
         $tempDest = sys_get_temp_dir() . "/";
-        $extractOk = $this->zip->extractTo($tempDest,  $migrationFolder . "sheets.sql" /*$databaseName . "-migration-{$versionTag}.sql"*/);
+        $extractOk = $this->zip->extractTo($tempDest,  $migrationFolder . $databaseName . "-migration-{$versionTag}.sql");
 
         if($extractOk === false) {
             return null;
         }
 
-        return file_get_contents($tempDest . $migrationFolder . "sheets.sql" /*$databaseName . "-migration-{$versionTag}.sql"*/);
+        return file_get_contents($tempDest . $migrationFolder . $databaseName . "-migration-{$versionTag}.sql");
     }
 }

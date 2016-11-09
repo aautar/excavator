@@ -3,7 +3,6 @@
 namespace Excavator;
 
 use Excavator\Artifact;
-use \Exception;
 
 class DataMigrator
 {
@@ -33,8 +32,14 @@ class DataMigrator
     {
         $urlParts = parse_url($connectionString);
 
-        if($urlParts === false) {
-            throw new Exception("Invalid connections string: " . $connectionString);
+        if($urlParts === false ||
+           !isset($urlParts['scheme']) ||
+           !isset($urlParts['host']) ||
+           !isset($urlParts['user']) ||
+           !isset($urlParts['pass']) ||
+           !isset($urlParts['port']))
+        {
+            throw new InvalidConnectionStringException("Invalid connection string: " . $connectionString);
         }
 
         $this->dbConnectionParams[$connectionString] = $urlParts;

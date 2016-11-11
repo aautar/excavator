@@ -79,7 +79,7 @@ class DataMigrator
 
         $executeOk = mysqli_multi_query($dataLink, $script);
         if($executeOk === false) {
-            throw new Exception(mysqli_error($dataLink));
+            throw new \Exception(mysqli_error($dataLink));
         }
 
         return true;

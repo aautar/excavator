@@ -84,6 +84,7 @@ if(empty($dbConnectionPath)) {
     $dbResourcePath = new ResourcePath($dbConnectionPath);
     $dbScriptPath = str_replace("%tag%", $versionTag, $dbMigrationPathTemplate);
     $dbScriptPath = str_replace("%dbname%", $dbResourcePath->getPath(), $dbScriptPath);
+    $dbScriptPath = trim($dbScriptPath, "/");
 
      try {
 
@@ -93,7 +94,7 @@ if(empty($dbConnectionPath)) {
         $migrator->checkDatabaseConnection();
         $stdout->writeMessageEnd("done.");
 
-        $stdout->writeMessageStart("Executing DB migrations... ");
+        $stdout->writeMessageStart("Executing DB migrations ({$dbScriptPath})... ");
         $executedScript = $migrator->executeMigration();
 
         if($executedScript) {

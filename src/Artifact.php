@@ -9,14 +9,14 @@ class Artifact
 {
     protected $artifactZipFile;
 
-    protected $versionFile;
+    protected $versionTag;
 
     protected $zip;
 
-    public function __construct(string $artifactZipFile, string $versionFile)
+    public function __construct(string $artifactZipFile, string $versionTag)
     {
         $this->artifactZipFile = $artifactZipFile;
-        $this->versionFile = $versionFile;
+        $this->versionTag = $versionTag;
 
         $this->zip = new ZipArchive();
         $res = $this->zip->open($this->artifactZipFile);
@@ -37,22 +37,19 @@ class Artifact
 
     public function getVersionTag() : string
     {
-        $tempDest = sys_get_temp_dir() . "/";
-        $this->zip->extractTo($tempDest, $this->versionFile);
-
-        return trim(file_get_contents($tempDest . $this->versionFile));
+        return $this->versionTag;
     }
 
-    public function getDBMigrationScript(string $migrationFolder, string $databaseName)
+    public function getDBMigrationScript(string $scriptPath)
     {
         $versionTag = $this->getVersionTag();
         $tempDest = sys_get_temp_dir() . "/";
-        $extractOk = $this->zip->extractTo($tempDest,  $migrationFolder . $databaseName . "-migration-{$versionTag}.sql");
+        $extractOk = $this->zip->extractTo($tempDest,  $scriptPath);
 
         if($extractOk === false) {
             return null;
         }
 
-        return file_get_contents($tempDest . $migrationFolder . $databaseName . "-migration-{$versionTag}.sql");
+        return file_get_contents($tempDest . $scriptPath);
     }
 }

@@ -3,48 +3,31 @@
 namespace Excavator;
 
 use Excavator\Artifact;
+use Excavator\ResourcePath;
 
 class DataMigrator
 {
 
     /**
-     * @var array
+     * @var ResourcePath
      */
-    protected $dbConnectionParams = [];
+    protected $dbConnectionPath;
 
     /**
      * @var string
      */
-    protected $dbMigrationsFolder;
+    protected $sqlScriptPath;
 
     /**
      * @var Artifact
      */
     protected $artifact;
 
-    /**
-     * @param string $connectionString
-     * @param string $dbMigrationsFolder
-     * @param Artifact $artifact
-     * @throws Exception
-     */
-    public function __construct(string $connectionString, string $dbMigrationsFolder, Artifact $artifact)
+    public function __construct(ResourcePath $connectionPath, Artifact $artifact, string $sqlScriptPath)
     {
-        $urlParts = parse_url($connectionString);
-
-        if($urlParts === false ||
-           !isset($urlParts['scheme']) ||
-           !isset($urlParts['host']) ||
-           !isset($urlParts['user']) ||
-           !isset($urlParts['pass']) ||
-           !isset($urlParts['port']))
-        {
-            throw new InvalidConnectionStringException("Invalid connection string: " . $connectionString);
-        }
-
-        $this->dbConnectionParams[$connectionString] = $urlParts;
-        $this->dbMigrationsFolder = $dbMigrationsFolder;
+        $this->dbConnectionPath = $connectionPath;
         $this->artifact = $artifact;
+        $this->sqlScriptPath = $sqlScriptPath;
     }
 
     /**
@@ -53,27 +36,28 @@ class DataMigrator
      */
     public function getDatabaseName() : string
     {
-        $connParams = reset($this->dbConnectionParams);
-        return substr($connParams['path'],1);
+        return $this->dbConnectionPath->getPath();
     }
 
-
     /**
-     *
      * @return bool
      * @throws Exception
      */
-    public function checkDatabaseConnections() : bool
+    public function checkDatabaseConnection() : bool
     {
-        foreach($this->dbConnectionParams as $connString => $connParams) {
-            if($connParams['scheme'] !== 'mysql') {
-                throw new Exception("Unsupported database: " . $connString);
-            }
+        if($this->dbConnectionPath->getScheme() !== 'mysql') {
+            throw new Exception("Unsupported database: " . $connString);
+        }
 
-            $dataLink = mysqli_connect($connParams['host'], $connParams['user'], $connParams['pass'], $this->getDatabaseName(), $connParams['port']);
-            if(!$dataLink) {
-                throw new Exception("Unable to connect to " . $connString);
-            }
+        $dataLink = mysqli_connect(
+                $this->dbConnectionPath->getHost(),
+                $this->dbConnectionPath->getUser(),
+                $this->dbConnectionPath->getPass(),
+                $this->getDatabaseName(),
+                $this->dbConnectionPath->getPort() );
+        
+        if(!$dataLink) {
+            throw new \Exception("Unable to connect to " . $connString);
         }
 
         return true;
@@ -81,15 +65,19 @@ class DataMigrator
 
     public function executeMigration() : bool
     {
-        $script = $this->artifact->getDBMigrationScript($this->dbMigrationsFolder, $this->getDatabaseName());
+        $script = $this->artifact->getDBMigrationScript($this->sqlScriptPath);
         if($script === null) {
             return false;
         }
 
-        $connParams = reset($this->dbConnectionParams);
-        $dataLink = mysqli_connect($connParams['host'], $connParams['user'], $connParams['pass'], $this->getDatabaseName(), $connParams['port']);
-        $executeOk = mysqli_multi_query($dataLink, $script);
+        $dataLink = mysqli_connect(
+                $this->dbConnectionPath->getHost(),
+                $this->dbConnectionPath->getUser(),
+                $this->dbConnectionPath->getPass(),
+                $this->getDatabaseName(),
+                $this->dbConnectionPath->getPort() );
 
+        $executeOk = mysqli_multi_query($dataLink, $script);
         if($executeOk === false) {
             throw new Exception(mysqli_error($dataLink));
         }

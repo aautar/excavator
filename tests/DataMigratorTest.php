@@ -8,15 +8,14 @@ use Excavator\InvalidResourcePathException;
 
 class DataMigratorTest extends \PHPUnit_Framework_TestCase
 {
-    public function testConstructThrowsExceptionForInvalidConnectionString()
-    {
-        $this->expectException(InvalidResourcePathException::class);
-        new DataMigrator("bad-conn-string", "/sql", $this->createMock(Artifact::class));
-    }
-
     public function testGetDatabaseNameReturnsDBName()
     {
-        $db = new DataMigrator("mysql://root:rootpass@localhost:3306/a_database_123", "/sql", $this->createMock(Artifact::class));
+        $db = new DataMigrator(
+                new \Excavator\ResourcePath("mysql://root:rootpass@localhost:3306/a_database_123"),
+                $this->createMock(Artifact::class),
+                "sql/script.sql"
+            );
+        
         $this->assertEquals("a_database_123", $db->getDatabaseName());
     }
 }

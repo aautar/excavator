@@ -24,7 +24,7 @@ $s3Path = getenv('S3_PATH');
 $artifactPathTemplate = getenv('ARTIFACT_PATH_TEMPLATE');
 
 /**
- * e.g. /sql/%dbname%-migration-%tag%.sql
+ * e.g. sql/%dbname%-migration-%tag%.sql
  */
 $dbMigrationPathTemplate = getenv('DB_MIGRATION_PATH_TEMPLATE');
 

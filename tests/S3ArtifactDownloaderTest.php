@@ -10,7 +10,7 @@ class S3ArtifactDownloaderTest extends \PHPUnit_Framework_TestCase
 {
     use PHPMock;
 
-    public function testDownloadToTempFileCallsGetObject()
+    public function testDownloadCallsGetObject()
     {
         $getTempDir = $this->getFunctionMock("Excavator", "sys_get_temp_dir");
         $getTempDir->expects($this->any())->willReturn("/tempy");
@@ -32,7 +32,7 @@ class S3ArtifactDownloaderTest extends \PHPUnit_Framework_TestCase
                         ]]
                 );
        
-        $downloader->downloadToTempFile("bucket", "artifact.zip");
+        $downloader->download("bucket", "artifact.zip", "version.txt");
 
     }
 }

@@ -5,30 +5,55 @@ require 'vendor/autoload.php';
 use Aws\S3\S3Client;
 use Excavator\Output;
 use Excavator\S3ArtifactDownloader;
+use Excavator\DataMigrator;
+use Excavator\ResourcePath;
+use Excavator\S3ResourcePath;
 
 $stdout = new Output();
 
-$stdout->writeLine("Excavator 1.0.0");
+$stdout->writeLine("Excavator 1.1.0");
 
-$s3Bucket = getenv('S3_BUCKET');
-$s3AccessKey = getenv('S3_ACCESS_KEY');
-$s3SecretKey = getenv('S3_SECRET_KEY');
-$s3Region = getenv('S3_REGION');
+/**
+ * e.g. s3://access:secret@region.bucket
+ */
+$s3Path = getenv('S3_PATH');
+
+/**
+ * e.g. deploy/artifact-release-%tag%.zip
+ */
+$artifactPathTemplate = getenv('ARTIFACT_PATH_TEMPLATE');
+
+/**
+ * e.g. /sql/%dbname%-migration-%tag%.sql
+ */
+$dbMigrationPathTemplate = getenv('DB_MIGRATION_PATH_TEMPLATE');
+
+/**
+ * e.g. mysql://root:rootpass@localhost:3306/mydb
+ */
+$dbConnectionPath = getenv('DB_CONNECTION');
 
 if(!isset($argv[1]) || !isset($argv[2])) {
     $stdout->writeLine("Missing argument(s)\n");
-    $stdout->writeLine("excavator [ARTIFACT-ZIP] [DESTINATION-FOLDER]\n");
+    $stdout->writeLine("excavator [VERSION-TAG] [DESTINATION-FOLDER]\n");
     exit;
 }
 
-if(empty($s3Bucket) || empty($s3AccessKey) || empty($s3SecretKey) || empty($s3Region)) {
+if(empty($s3Path) || empty($artifactPathTemplate) || empty($dbMigrationPathTemplate)) {
     $stdout->writeLine("Missing require environment variables");
     exit;
 }
 
-$stdout->writeLine('S3_BUCKET=' . $s3Bucket);
-$stdout->writeLine('S3_ACCESS_KEY=' . $s3AccessKey);
-$stdout->writeLine('S3_REGION=' . $s3Region);
+$versionTag = $argv[1];
+$artifactZip = str_replace("%tag%", $versionTag, $artifactPathTemplate);
+$destinationFolder = $argv[2];
+
+$s3ResourcePath = new S3ResourcePath($s3Path);
+
+$s3AccessKey = $s3ResourcePath->getUser();
+$s3SecretKey = $s3ResourcePath->getPass();
+$s3Bucket = $s3ResourcePath->getBucket();
+$s3Region = $s3ResourcePath->getRegion();
 
 $s3 = new S3Client([
     'version' => 'latest',
@@ -39,20 +64,54 @@ $s3 = new S3Client([
     ]
 ]);
 
-$s3ArtifactDownloader = new S3ArtifactDownloader($s3);
-
+// Download artifact
 $stdout->writeMessageStart("Downloading artifact... ");
-$saveToFilename = $s3ArtifactDownloader->downloadToTempFile($s3Bucket, $argv[1]);
+$s3ArtifactDownloader = new S3ArtifactDownloader($s3);
+$artifact = $s3ArtifactDownloader->download($s3Bucket, $artifactZip, $versionTag);
 $stdout->writeMessageEnd("done.");
 
-$stdout->writeMessageStart("Unzipping artifact...");
-$zip = new ZipArchive();
-$res = $zip->open($saveToFilename);
-if ($res === TRUE) {
-    $zip->extractTo($argv[2]);
-    $zip->close();
+
+// Run DB migrations
+if(empty($dbConnectionPath)) {
+    $stdout->writeLine("No database connection specified, will not attempt to run migrations");
 } else {
-    $stdout->writeMessageEnd("Failed to open " . $saveToFilename . ".");
+
+     if(empty($dbMigrationPathTemplate)) {
+         $stdout->writeLine("Missing required environment variables for DB migrations");
+         exit;
+     }
+
+    $dbResourcePath = new ResourcePath($dbConnectionPath);
+    $dbScriptPath = str_replace("%tag%", $versionTag, $dbMigrationPathTemplate);
+    $dbScriptPath = str_replace("%dbname%", $dbResourcePath->getPath(), $dbScriptPath);
+    $dbScriptPath = trim($dbScriptPath, "/");
+
+     try {
+
+        $migrator = new DataMigrator($dbResourcePath, $artifact, $dbScriptPath);
+
+        $stdout->writeMessageStart("Checking database connections for migrations... ");
+        $migrator->checkDatabaseConnection();
+        $stdout->writeMessageEnd("done.");
+
+        $stdout->writeMessageStart("Executing DB migrations ({$dbScriptPath})... ");
+        $executedScript = $migrator->executeMigration();
+
+        if($executedScript) {
+            $stdout->writeMessageEnd("done (executed script).");
+        } else {
+            $stdout->writeMessageEnd("done (no script found).");
+        }
+
+     } catch (\Throwable $e) {
+         $stdout->writeLine($e->getMessage());
+         exit;
+     }
 }
 
+// Unzip artifact
+$stdout->writeMessageStart("Unzipping artifact... ");
+$artifact->unzipAll($destinationFolder);
 $stdout->writeMessageEnd("done.");
+
+$artifact->cleanup();

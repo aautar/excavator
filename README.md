@@ -9,10 +9,10 @@ Pull and deploy artifacts from S3
 
 Set the following environment variables:
 
- - `S3_PATH`<br>`(e.g. s3://access:secret@region.bucket)`
- - `ARTIFACT_PATH_TEMPLATE`<br>`(e.g. deploy/artifact-release-%tag%.zip)`
- - `DB_MIGRATION_PATH_TEMPLATE`<br>`(e.g. sql/%dbname%-migration-%tag%.sql)`
- - `DB_CONNECTION`<br>`(e.g. mysql://root:rootpass@localhost:3306/mydb)`
+ - `S3_PATH`<br>(e.g. `s3://access:secret@region.bucket`)
+ - `ARTIFACT_PATH_TEMPLATE`<br>(e.g. `deploy/artifact-release-%tag%.zip`)
+ - `DB_MIGRATION_PATH_TEMPLATE`<br>(e.g. `sql/%dbname%-migration-%tag%.sql`)
+ - `DB_CONNECTION`<br>(e.g. `mysql://root:rootpass@localhost:3306/mydb`)
 
 Run script:
 

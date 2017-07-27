@@ -13,6 +13,12 @@ class S3ResourcePathTest extends \PHPUnit_Framework_TestCase
         new S3ResourcePath("s3://access:secret@region/");
     }
 
+    public function testConstructHandlesSecretWithEncodedSlashCharacter()
+    {
+        $s3ResourcePath = new S3ResourcePath("s3://access:secr%2Fet@region.bucket/");
+        $this->assertEquals("secr/et", $s3ResourcePath->getPass());
+    }
+
     public function testGetBucketReturnsBucket()
     {
         $s3ResourcePath = new S3ResourcePath("s3://access:secret@region.bucket/");

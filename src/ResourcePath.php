@@ -85,13 +85,13 @@ class ResourcePath
             throw new InvalidResourcePathException("Invalid resource path string: " . $path);
         }
 
-        $this->scheme = $urlParts['scheme'];
-        $this->host = $urlParts['host'];
-        $this->user = $urlParts['user'];
-        $this->pass = $urlParts['pass'];
+        $this->scheme = urldecode($urlParts['scheme']);
+        $this->host = urldecode($urlParts['host']);
+        $this->user = urldecode($urlParts['user']);
+        $this->pass = urldecode($urlParts['pass']);
         $this->port = (int)($urlParts['port'] ?? 0);
         
         $this->path = $urlParts['path'] ?? "";
-        $this->path = trim($this->path, "/");
+        $this->path = urldecode(trim($this->path, "/"));
     }
 }

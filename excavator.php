@@ -39,9 +39,16 @@ if(!isset($argv[1]) || !isset($argv[2])) {
     exit;
 }
 
-if(empty($s3Path) || empty($artifactPathTemplate) || empty($dbMigrationPathTemplate)) {
+if(empty($s3Path) || empty($artifactPathTemplate)) {
     $stdout->writeLine("Missing require environment variables");
     exit;
+}
+
+if(!empty($dbConnectionPath)) {
+    if(empty($dbMigrationPathTemplate)) {
+        $stdout->writeLine("Missing require environment variables: DB_MIGRATION_PATH_TEMPLATE");
+        exit;
+    }
 }
 
 $versionTag = $argv[1];
@@ -75,12 +82,6 @@ $stdout->writeMessageEnd("done.");
 if(empty($dbConnectionPath)) {
     $stdout->writeLine("No database connection specified, will not attempt to run migrations");
 } else {
-
-     if(empty($dbMigrationPathTemplate)) {
-         $stdout->writeLine("Missing required environment variables for DB migrations");
-         exit;
-     }
-
     $dbResourcePath = new ResourcePath($dbConnectionPath);
     $dbScriptPath = str_replace("%tag%", $versionTag, $dbMigrationPathTemplate);
     $dbScriptPath = str_replace("%dbname%", $dbResourcePath->getPath(), $dbScriptPath);

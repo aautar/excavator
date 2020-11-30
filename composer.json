@@ -1,6 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "^3.19",
+        "aws/aws-sdk-php": "^3.164",
         "php": "^7.1.0"
     },
     "autoload": {

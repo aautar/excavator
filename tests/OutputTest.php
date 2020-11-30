@@ -4,7 +4,7 @@ namespace Excavator\Tests;
 
 use Excavator\Output;
 
-class OutputTest extends \PHPUnit_Framework_TestCase
+class OutputTest extends \PHPUnit\Framework\TestCase
 {
     public function testWriteLineEchosMessage()
     {

@@ -6,7 +6,7 @@ use Excavator\DataMigrator;
 use Excavator\Artifact;
 use Excavator\InvalidResourcePathException;
 
-class DataMigratorTest extends \PHPUnit_Framework_TestCase
+class DataMigratorTest extends \PHPUnit\Framework\TestCase
 {
     public function testGetDatabaseNameReturnsDBName()
     {

@@ -6,7 +6,7 @@ use Aws\S3\S3Client;
 use phpmock\phpunit\PHPMock;
 use Excavator\S3ArtifactDownloader;
 
-class S3ArtifactDownloaderTest extends \PHPUnit_Framework_TestCase
+class S3ArtifactDownloaderTest extends \PHPUnit\Framework\TestCase
 {
     use PHPMock;
 

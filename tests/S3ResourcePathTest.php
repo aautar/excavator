@@ -5,7 +5,7 @@ namespace Excavator\Tests;
 use Excavator\S3ResourcePath;
 use Excavator\InvalidResourcePathException;
 
-class S3ResourcePathTest extends \PHPUnit_Framework_TestCase
+class S3ResourcePathTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstructThrowsInvalidResourcePathException()
     {

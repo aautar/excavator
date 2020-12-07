@@ -11,7 +11,7 @@ use Excavator\S3ResourcePath;
 
 $stdout = new Output();
 
-$stdout->writeLine("Excavator 1.1.0");
+$stdout->writeLine("Excavator 1.1.5");
 
 /**
  * e.g. s3://access:secret@region.bucket
